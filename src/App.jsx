@@ -33,25 +33,82 @@ const CITY_HERO_IMAGES = {
   Ayodhya: 'https://images.unsplash.com/photo-1590050752117-238cb0fb12b1?auto=format&fit=crop&w=1200&q=80'
 };
 
+// 100% Accurately Mapped Circuit Defaults
 const DEFAULT_TRIP_DAYS = [
-  { day: 1, date: '2026-09-26', label: 'Sep 26', city: 'Transit / Prayagraj', hero: CITY_HERO_IMAGES.Transit, riverStatus: 'Airport Arrival • Cab to Prayagraj Kashi Math' },
-  { day: 2, date: '2026-09-27', label: 'Sep 27', city: 'Prayagraj / Varanasi', hero: CITY_HERO_IMAGES.Prayagraj, riverStatus: 'Triveni Sangam Snan • Transfer to Varanasi' },
-  { day: 3, date: '2026-09-28', label: 'Sep 28', city: 'Varanasi', hero: CITY_HERO_IMAGES.Varanasi, riverStatus: 'Kashi Vishwanath Darshan • Ganga Aarti' },
-  { day: 4, date: '2026-09-29', label: 'Sep 29', city: 'Varanasi', hero: CITY_HERO_IMAGES.Varanasi, riverStatus: 'Sunrise Ghat Cruise • Sankat Mochan' },
-  { day: 5, date: '2026-09-30', label: 'Sep 30', city: 'Ayodhya', hero: CITY_HERO_IMAGES.Ayodhya, riverStatus: 'Saryu River Aarti • Evening Atmosphere' },
-  { day: 6, date: '2026-10-01', label: 'Oct 1',  city: 'Ayodhya', hero: CITY_HERO_IMAGES.Ayodhya, riverStatus: 'Ram Janmabhoomi & Hanuman Garhi' },
-  { day: 7, date: '2026-10-02', label: 'Oct 2',  city: 'Varanasi', hero: CITY_HERO_IMAGES.Varanasi, riverStatus: 'Silk Weaver Quarter • Final Ghat Walk' },
-  { day: 8, date: '2026-10-03', label: 'Oct 3',  city: 'Transit / Return', hero: CITY_HERO_IMAGES.Transit, riverStatus: 'Departure: Varanasi to Kochi (COK)' }
+  { 
+    day: 1, 
+    date: '2026-09-26', 
+    label: 'Sep 26', 
+    city: 'Transit / Prayagraj', 
+    hero: CITY_HERO_IMAGES.Transit, 
+    riverStatus: 'Airport Arrival • Night Cab Transfer to Prayagraj Kashi Math' 
+  },
+  { 
+    day: 2, 
+    date: '2026-09-27', 
+    label: 'Sep 27', 
+    city: 'Prayagraj', 
+    hero: CITY_HERO_IMAGES.Prayagraj, 
+    riverStatus: 'Triveni Sangam Snan & Veni Daan • Bade Hanuman Ji • Temple Visits' 
+  },
+  { 
+    day: 3, 
+    date: '2026-09-28', 
+    label: 'Sep 28', 
+    city: 'Ayodhya / Varanasi', 
+    hero: CITY_HERO_IMAGES.Ayodhya, 
+    riverStatus: 'Early Cab to Ayodhya (Ram Mandir) • Evening Drive to Varanasi Stay' 
+  },
+  { 
+    day: 4, 
+    date: '2026-09-29', 
+    label: 'Sep 29', 
+    city: 'Varanasi', 
+    hero: CITY_HERO_IMAGES.Varanasi, 
+    riverStatus: 'Kashi Vishwanath Darshan • Dashashwamedh Ghat Evening Aarti' 
+  },
+  { 
+    day: 5, 
+    date: '2026-09-30', 
+    label: 'Sep 30', 
+    city: 'Varanasi', 
+    hero: CITY_HERO_IMAGES.Varanasi, 
+    riverStatus: 'Subah-e-Banaras Sunrise Boat • Sankat Mochan • Local Bazaars' 
+  },
+  { 
+    day: 6, 
+    date: '2026-10-01', 
+    label: 'Oct 1',  
+    city: 'Varanasi', 
+    hero: CITY_HERO_IMAGES.Varanasi, 
+    riverStatus: 'Annapurna Mandir • Kal Bhairav • Evening Riverside Walk' 
+  },
+  { 
+    day: 7, 
+    date: '2026-10-02', 
+    label: 'Oct 2',  
+    city: 'Varanasi (Sarnath)', 
+    hero: CITY_HERO_IMAGES.Varanasi, 
+    riverStatus: 'Sarnath Excursion (Dhamek Stupa) • Banarasi Silk Weaving Walk' 
+  },
+  { 
+    day: 8, 
+    date: '2026-10-03', 
+    label: 'Oct 3',  
+    city: 'Transit / Return', 
+    hero: CITY_HERO_IMAGES.Transit, 
+    riverStatus: 'Varanasi Airport Departure to Kochi (COK)' 
+  }
 ];
 
 const PRE_TRIP_DEFAULTS = [
-  { id: 'pre-1', item: 'Print Darshan Tickets & Passes (Kashi & Ayodhya)', category: 'Pre-Trip', is_packed: false, assigned_to: 'All', target_bag: 'Handbag' },
-  { id: 'pre-2', item: 'Original Aadhaar / Govt Photo IDs for all 7 members', category: 'Pre-Trip', is_packed: false, assigned_to: 'All', target_bag: 'Handbag' },
-  { id: 'pre-3', item: 'Preventive Gastro/Food Kit (Probiotics, ORS, Vomistop, Antacids)', category: 'Pre-Trip', is_packed: false, assigned_to: 'All', target_bag: 'Cabin' },
-  { id: 'pre-4', item: 'Web Check-in for IndiGo 6E 738 (Opens 24 Sep, 16:05)', category: 'Pre-Trip', is_packed: false, assigned_to: 'All', target_bag: 'General' },
+  { id: 'pre-1', item: 'Print Darshan Tickets & Passes (Kashi & Ram Janmabhoomi)', category: 'Pre-Trip', is_packed: false, assigned_to: 'All', target_bag: 'Handbag' },
+  { id: 'pre-2', item: 'Original Aadhaar Cards / Govt Photo IDs for all 7 members', category: 'Pre-Trip', is_packed: false, assigned_to: 'All', target_bag: 'Handbag' },
+  { id: 'pre-3', item: 'Gastro/Food Care Kit (Probiotics, ORS Sachets, Vomistop, Antacids)', category: 'Pre-Trip', is_packed: false, assigned_to: 'All', target_bag: 'Cabin' },
+  { id: 'pre-4', item: 'Web Check-in for 6E 738 (Opens 24 Sep, 16:05)', category: 'Pre-Trip', is_packed: false, assigned_to: 'All', target_bag: 'General' },
   { id: 'pre-5', item: 'Toddler Flask / Thermos for warm water & safe formula', category: 'Pre-Trip', is_packed: false, assigned_to: 'Toddler', target_bag: 'Handbag' },
-  { id: 'pre-6', item: 'Slip-on footwear without laces (for frequent temple deposits)', category: 'Pre-Trip', is_packed: false, assigned_to: 'All', target_bag: 'General' },
-  { id: 'pre-7', item: 'Offline copy of Google Maps downloaded for Varanasi & Ayodhya', category: 'Pre-Trip', is_packed: false, assigned_to: 'All', target_bag: 'General' }
+  { id: 'pre-6', item: 'Slip-on shoes / sandals without laces (for quick temple footwear deposits)', category: 'Pre-Trip', is_packed: false, assigned_to: 'All', target_bag: 'General' },
+  { id: 'pre-7', item: 'Offline Google Maps downloaded for Varanasi, Prayagraj & Ayodhya', category: 'Pre-Trip', is_packed: false, assigned_to: 'All', target_bag: 'General' }
 ];
 
 export default function App() {
@@ -64,7 +121,7 @@ export default function App() {
   const [editingItemId, setEditingItemId] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // Core Data States
+  // States
   const [itinerary, setItinerary] = useState(() => JSON.parse(localStorage.getItem('trip_itinerary') || '[]'));
   const [contacts, setContacts] = useState(() => JSON.parse(localStorage.getItem('trip_contacts') || '[]'));
   const [packing, setPacking] = useState(() => {
@@ -78,7 +135,7 @@ export default function App() {
   // Day Form State
   const [dayEditForm, setDayEditForm] = useState({ city: '', status: '', tip: '' });
 
-  // Event Form State
+  // Activity Form State
   const [newActivity, setNewActivity] = useState({ 
     day_number: 1, 
     date: '2026-09-26', 
@@ -139,19 +196,18 @@ export default function App() {
     }
   }
 
-  // Live dynamically calculated trip days (merges defaults with custom user edits)
+  // Dynamic Day List with user overrides
   const tripDays = DEFAULT_TRIP_DAYS.map(d => {
     const override = dayMetaOverrides[d.day];
     const city = override?.city || d.city;
     const riverStatus = override?.status || d.riverStatus;
     
-    // Choose matching dynamic background
     let hero = d.hero;
     const lowerCity = city.toLowerCase();
     if (lowerCity.includes('prayagraj')) hero = CITY_HERO_IMAGES.Prayagraj;
     else if (lowerCity.includes('ayodhya')) hero = CITY_HERO_IMAGES.Ayodhya;
     else if (lowerCity.includes('transit')) hero = CITY_HERO_IMAGES.Transit;
-    else if (lowerCity.includes('varanasi')) hero = CITY_HERO_IMAGES.Varanasi;
+    else if (lowerCity.includes('varanasi') || lowerCity.includes('sarnath')) hero = CITY_HERO_IMAGES.Varanasi;
 
     return { ...d, city, riverStatus, hero };
   });
@@ -172,7 +228,7 @@ export default function App() {
       : `No items scheduled yet for Day ${selectedDay}. Tap + to add.`
   );
 
-  // --- SAVE / EDIT DAY METADATA (CITY, STATUS, HIGHLIGHT) ---
+  // Save Day Setup (City title, River status, Highlights)
   async function saveDaySetup(e) {
     e.preventDefault();
     const updated = {
@@ -208,7 +264,7 @@ export default function App() {
     setIsEditingDayModal(true);
   }
 
-  // --- SAVE / EDIT ITINERARY ITEM ---
+  // Save/Edit Activity
   async function saveItineraryItem(e) {
     e.preventDefault();
     if (!newActivity.activity.trim()) return;
@@ -294,7 +350,7 @@ export default function App() {
         localStorage.setItem('packing_list', JSON.stringify(reconciled));
       }
     } catch (err) {
-      console.warn("Offline: packing item saved locally", err);
+      console.warn("Offline: packing saved locally", err);
     }
   }
 
@@ -460,11 +516,11 @@ export default function App() {
             <span className="hero-tag hero-tag-offline"><ShieldCheck size={11} /> Offline Ready</span>
           </div>
           <h1 className="hero-main-title">Kashi & Beyond</h1>
-          <p className="hero-sub">Kochi ⇄ Varanasi • Prayagraj • Ayodhya (Sept 26 – Oct 3)</p>
+          <p className="hero-sub">Kochi ⇄ Prayagraj • Ayodhya • Varanasi (Sept 26 – Oct 3)</p>
         </div>
       </header>
 
-      {/* KASHI VISHWANATH ANIMATED SPLASH */}
+      {/* KASHI MANDALA ANIMATED SPLASH */}
       {loading ? (
         <div className="kashi-splash-wrapper">
           <div className="kashi-mandala-container">
@@ -498,7 +554,7 @@ export default function App() {
               ========================================================= */}
           {activeTab === 'itinerary' && (
             <div>
-              {/* Day Carousel with inline edit indicator */}
+              {/* Day Carousel */}
               <div className="day-scroller">
                 {tripDays.map(d => (
                   <div
@@ -863,7 +919,7 @@ export default function App() {
           )}
 
           {/* =========================================================
-              4. DIRECTORY TAB (Central Emergency & Leads Hub)
+              4. DIRECTORY TAB
               ========================================================= */}
           {activeTab === 'contacts' && (
             <div>
@@ -903,8 +959,8 @@ export default function App() {
             setNewActivity({
               day_number: selectedDay,
               date: tripDays.find(d => d.day === selectedDay)?.date || '2026-09-26',
-              location: selectedDay === 1 ? 'Transit (VNS → Prayagraj)' : 'Varanasi',
-              type: selectedDay === 1 ? 'Drive' : 'Activity',
+              location: selectedDay === 1 ? 'Transit (VNS → Prayagraj)' : selectedDay === 2 ? 'Prayagraj' : selectedDay === 3 ? 'Transit (Prayagraj → Ayodhya)' : 'Varanasi',
+              type: (selectedDay === 1 || selectedDay === 3) ? 'Drive' : 'Activity',
               activity: '',
               flight_no: '',
               time_info: '',
@@ -942,7 +998,7 @@ export default function App() {
         </nav>
       )}
 
-      {/* EDIT DAY SETUP MODAL (CITY, STATUS, & GOAL) */}
+      {/* EDIT DAY SETUP MODAL (CITY, STATUS & SUMMARY) */}
       {isEditingDayModal && (
         <div className="modal-overlay" onClick={() => setIsEditingDayModal(false)}>
           <div className="modal-sheet" onClick={(e) => e.stopPropagation()}>
@@ -960,7 +1016,7 @@ export default function App() {
                 type="text"
                 value={dayEditForm.city}
                 onChange={(e) => setDayEditForm({ ...dayEditForm, city: e.target.value })}
-                placeholder="e.g. Prayagraj (Kashi Math)"
+                placeholder="e.g. Prayagraj / Ayodhya / Varanasi (Sarnath)"
                 className="input-box"
                 style={{ marginBottom: '10px' }}
                 required
@@ -973,13 +1029,13 @@ export default function App() {
                 type="text"
                 value={dayEditForm.status}
                 onChange={(e) => setDayEditForm({ ...dayEditForm, status: e.target.value })}
-                placeholder="e.g. Airport Pickup • Night Cab to Prayagraj"
+                placeholder="e.g. Confluence Boats Running • Sarnath Stupa Open"
                 className="input-box"
                 style={{ marginBottom: '10px' }}
               />
 
               <label style={{ fontSize: '0.75rem', fontWeight: 'bold', color: '#78350f', display: 'block', marginBottom: '4px' }}>
-                Day Summary / Highlights Note
+                Day Highlights Note
               </label>
               <textarea
                 value={dayEditForm.tip}
@@ -1038,6 +1094,7 @@ export default function App() {
                     <option value="Ayodhya">Ayodhya</option>
                     <option value="Transit (Ayodhya → Varanasi)">Ayodhya → Varanasi</option>
                     <option value="Varanasi">Varanasi</option>
+                    <option value="Sarnath">Sarnath</option>
                     <option value="Transit (COK → VNS)">COK → VNS (Flight)</option>
                     <option value="Transit (VNS → COK)">VNS → COK (Flight)</option>
                   </select>
@@ -1054,7 +1111,7 @@ export default function App() {
                     />
                     <input
                       type="text"
-                      placeholder="Timing (e.g. 9 pm to 12:30 Am)"
+                      placeholder="Timing (e.g. 06:00 AM - 10:30 AM)"
                       value={newActivity.time_info}
                       onChange={(e) => setNewActivity({ ...newActivity, time_info: e.target.value })}
                       className="input-box"
@@ -1064,7 +1121,7 @@ export default function App() {
 
                 <input
                   type="text"
-                  placeholder={newActivity.type === 'Drive' ? "Destination (e.g. Prayagraj Kashi Math)" : "Activity or Temple"}
+                  placeholder={newActivity.type === 'Drive' ? "Route / Destination (e.g. Early Drive to Ayodhya)" : "Activity or Temple"}
                   value={newActivity.activity}
                   onChange={(e) => setNewActivity({ ...newActivity, activity: e.target.value })}
                   className="input-box"
@@ -1094,7 +1151,7 @@ export default function App() {
 
                 <input
                   type="text"
-                  placeholder="Notes (e.g. Web check-in dates, darshan rules)"
+                  placeholder="Notes (e.g. Web check-in, darshan timing, locker alert)"
                   value={newActivity.notes}
                   onChange={(e) => setNewActivity({ ...newActivity, notes: e.target.value })}
                   className="input-box"

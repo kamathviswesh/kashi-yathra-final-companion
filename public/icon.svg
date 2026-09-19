@@ -1,40 +1,146 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
   <defs>
-    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#b45309" />
-      <stop offset="50%" stop-color="#78350f" />
-      <stop offset="100%" stop-color="#451a03" />
+    <clipPath id="squircleClip">
+      <rect width="512" height="512" rx="112" ry="112" />
+    </clipPath>
+
+    <linearGradient id="skyGrad" x1="50%" y1="0%" x2="50%" y2="62%">
+      <stop offset="0%" stop-color="#f8cf89" />
+      <stop offset="42%" stop-color="#f8bf6f" />
+      <stop offset="78%" stop-color="#ea9e57" />
+      <stop offset="100%" stop-color="#e38c4c" />
     </linearGradient>
-    <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#fef3c7" />
-      <stop offset="50%" stop-color="#f59e0b" />
-      <stop offset="100%" stop-color="#d97706" />
+
+    <linearGradient id="riverGrad" x1="50%" y1="60%" x2="50%" y2="100%">
+      <stop offset="0%" stop-color="#3b9691" />
+      <stop offset="40%" stop-color="#1f7178" />
+      <stop offset="75%" stop-color="#124f5a" />
+      <stop offset="100%" stop-color="#0a323d" />
     </linearGradient>
+
+    <radialGradient id="sunGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#fff8e7" />
+      <stop offset="75%" stop-color="#faecc8" />
+      <stop offset="100%" stop-color="#f5dc9f" stop-opacity="0.9" />
+    </radialGradient>
+
+    <linearGradient id="templeLit" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#ea7a40" />
+      <stop offset="60%" stop-color="#c85926" />
+      <stop offset="100%" stop-color="#913715" />
+    </linearGradient>
+
+    <radialGradient id="diyaGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#fff5aa" />
+      <stop offset="40%" stop-color="#f59e0b" />
+      <stop offset="100%" stop-color="#d97706" stop-opacity="0" />
+    </radialGradient>
   </defs>
 
-  <!-- Background Tile -->
-  <rect width="512" height="512" rx="115" fill="url(#bgGrad)" />
-  
-  <!-- Outer Sacred Ring -->
-  <circle cx="256" cy="256" r="215" stroke="url(#goldGrad)" stroke-width="6" fill="none" stroke-dasharray="14 10" opacity="0.45" />
-  <circle cx="256" cy="256" r="190" stroke="url(#goldGrad)" stroke-width="2.5" fill="none" opacity="0.3" />
+  <g clip-path="url(#squircleClip)">
+    <rect width="512" height="320" fill="url(#skyGrad)" />
+    <circle cx="180" cy="195" r="44" fill="url(#sunGlow)" />
 
-  <!-- Center Trishul & Damru -->
-  <g transform="translate(0, -10)">
-    <!-- Center Trident Spear -->
-    <path d="M256 55 L285 170 H227 Z" fill="url(#goldGrad)" />
-    <path d="M256 170 V420" stroke="url(#goldGrad)" stroke-width="22" stroke-linecap="round" />
+    <path d="M50 310 L50 280 Q65 272 80 280 Q100 270 120 280 L135 280 L145 250 L150 240 L155 250 L165 280 L185 280 L195 260 L200 250 L205 260 L220 280 Q245 270 270 280 L280 240 L285 220 L290 240 L300 280 L320 280 L320 310 Z" fill="#df9457" opacity="0.65" />
 
-    <!-- Left Prong -->
-    <path d="M150 145 C150 255 240 285 240 285" stroke="url(#goldGrad)" stroke-width="22" stroke-linecap="round" fill="none" />
-    <path d="M135 130 L165 175 H120 Z" fill="url(#goldGrad)" />
+    <g fill="#b96232">
+      <path d="M305 280 L305 210 Q315 170 322 170 Q330 170 340 210 L340 280 Z" />
+      <path d="M320 170 L322 155 L325 170 Z" fill="#964016" />
+      <path d="M285 280 L285 240 Q292 220 297 220 Q302 220 308 240 L308 280 Z" />
+    </g>
 
-    <!-- Right Prong -->
-    <path d="M362 145 C362 255 272 285 272 285" stroke="url(#goldGrad)" stroke-width="22" stroke-linecap="round" fill="none" />
-    <path d="M377 130 L392 175 H347 Z" fill="url(#goldGrad)" />
+    <path d="M260 320 L260 295 L275 295 L275 280 L310 280 L310 250 L345 250 L345 320 Z" fill="#bf5b27" />
+    <path d="M275 320 L275 308 L295 308 L295 296 L315 296 L315 284 L340 284 L340 320 Z" fill="#a44c1d" />
+    <path d="M315 328 L315 316 L345 316 L345 304 L375 304 L375 292 L405 292 L405 328 Z" fill="#883b16" />
 
-    <!-- Damru Waist -->
-    <path d="M210 320 L302 385 M302 320 L210 385" stroke="#fef3c7" stroke-width="16" stroke-linecap="round" />
-    <circle cx="256" cy="352" r="14" fill="#fde68a" />
+    <rect x="340" y="225" width="85" height="75" fill="#a74a1f" />
+    <rect x="352" y="240" width="18" height="35" rx="3" fill="#6d2b0e" />
+    <rect x="382" y="240" width="18" height="35" rx="3" fill="#582109" />
+
+    <path d="M346 225 C350 175 372 135 382 118 C392 135 414 175 418 225 Z" fill="url(#templeLit)" />
+    <path d="M382 118 L382 225" stroke="#7e2b0c" stroke-width="2.5" />
+    <path d="M366 175 C372 173 392 173 398 175" stroke="#7e2b0c" stroke-width="2" fill="none" />
+    <path d="M358 198 C368 195 396 195 406 198" stroke="#7e2b0c" stroke-width="2" fill="none" />
+
+    <circle cx="382" cy="112" r="5" fill="#ea7a40" />
+    <rect x="381" y="80" width="2.5" height="32" fill="#582109" />
+    <path d="M383 82 Q410 82 425 94 Q408 108 383 104 Z" fill="#e0531c" />
+    <path d="M420 220 Q415 190 435 175 Q460 160 480 185 Q505 180 512 210 L512 320 L420 320 Z" fill="#1b4d4f" />
+
+    <ellipse cx="332" cy="314" rx="14" ry="14" fill="url(#diyaGlow)" />
+    <ellipse cx="332" cy="316" rx="5" ry="2" fill="#5c240c" />
+    <path d="M332 310 Q334 314 332 316 Q330 314 332 310 Z" fill="#fff5aa" />
+
+    <ellipse cx="355" cy="302" rx="16" ry="16" fill="url(#diyaGlow)" />
+    <ellipse cx="355" cy="304" rx="6" ry="2.5" fill="#5c240c" />
+    <path d="M355 296 Q358 301 355 304 Q352 301 355 296 Z" fill="#fff5aa" />
+
+    <ellipse cx="390" cy="278" rx="14" ry="14" fill="url(#diyaGlow)" />
+    <ellipse cx="390" cy="280" rx="5" ry="2" fill="#5c240c" />
+    <path d="M390 274 Q392 278 390 280 Q388 278 390 274 Z" fill="#fff5aa" />
+
+    <ellipse cx="420" cy="265" rx="14" ry="14" fill="url(#diyaGlow)" />
+    <ellipse cx="420" cy="267" rx="5" ry="2" fill="#5c240c" />
+    <path d="M420 261 Q422 265 420 267 Q418 265 420 261 Z" fill="#fff5aa" />
+
+    <rect y="310" width="512" height="202" fill="url(#riverGrad)" />
+
+    <g fill="#f8bf6f" opacity="0.85">
+      <ellipse cx="180" cy="314" rx="28" ry="2.5" />
+      <ellipse cx="182" cy="321" rx="35" ry="3" />
+      <ellipse cx="178" cy="330" rx="24" ry="2.5" />
+      <ellipse cx="185" cy="340" rx="42" ry="3.5" />
+      <ellipse cx="195" cy="354" rx="36" ry="3.5" />
+      <ellipse cx="205" cy="370" rx="48" ry="4" />
+      <ellipse cx="215" cy="392" rx="40" ry="3.5" />
+      <ellipse cx="225" cy="415" rx="52" ry="4" />
+      <ellipse cx="218" cy="438" rx="34" ry="3" />
+      <ellipse cx="230" cy="460" rx="42" ry="3" />
+    </g>
+
+    <g fill="#f59e0b" opacity="0.9">
+      <ellipse cx="355" cy="338" rx="5.5" ry="2" />
+      <ellipse cx="355" cy="348" rx="7" ry="2.5" />
+      <ellipse cx="355" cy="359" rx="8" ry="2.5" />
+      <ellipse cx="355" cy="372" rx="6.5" ry="2" />
+      <ellipse cx="355" cy="386" rx="7.5" ry="2" />
+      <ellipse cx="355" cy="400" rx="6" ry="2" />
+      <ellipse cx="355" cy="415" rx="5" ry="1.5" />
+      <ellipse cx="355" cy="430" rx="4.5" ry="1.5" />
+
+      <ellipse cx="332" cy="336" rx="4.5" ry="2" />
+      <ellipse cx="332" cy="347" rx="5" ry="2" />
+      <ellipse cx="332" cy="360" rx="4" ry="1.5" />
+      <ellipse cx="332" cy="374" rx="4" ry="1.5" />
+      <ellipse cx="332" cy="390" rx="3.5" ry="1.5" />
+
+      <ellipse cx="390" cy="340" rx="4" ry="2" />
+      <ellipse cx="390" cy="354" rx="4.5" ry="2" />
+      <ellipse cx="390" cy="368" rx="4" ry="1.5" />
+      <ellipse cx="390" cy="385" rx="3.5" ry="1.5" />
+      <ellipse cx="390" cy="402" rx="3" ry="1" />
+    </g>
+
+    <g fill="#0c424c" opacity="0.75">
+      <ellipse cx="130" cy="380" rx="55" ry="3" />
+      <ellipse cx="145" cy="405" rx="45" ry="2.5" />
+      <ellipse cx="115" cy="435" rx="38" ry="2.5" />
+      <ellipse cx="300" cy="445" rx="40" ry="3" />
+      <ellipse cx="320" cy="475" rx="50" ry="3" />
+    </g>
+
+    <g id="boat">
+      <ellipse cx="120" cy="398" rx="85" ry="12" fill="#06222b" opacity="0.6" />
+      <path d="M50 324 C65 338 120 354 185 348 C205 345 220 340 225 338 C222 355 195 385 140 390 C80 395 50 380 50 324 Z" fill="#0e3f49" />
+      <path d="M50 338 C80 350 140 358 220 340 C210 355 185 372 135 376 C85 380 50 365 50 338 Z" fill="#082b33" />
+      <path d="M50 338 C80 352 140 360 220 342" stroke="#1d616d" stroke-width="3" fill="none" />
+      <rect x="85" y="348" width="5" height="36" rx="2" fill="#0e3f49" />
+    </g>
+
+    <g fill="#18363d">
+      <path d="M280 134 Q286 128 290 134 Q294 128 300 134 Q294 138 290 136 Q286 138 280 134 Z" />
+      <path d="M258 152 Q262 148 266 152 Q270 148 274 152 Q270 155 266 153 Q262 155 258 152 Z" />
+      <path d="M285 166 Q290 162 294 166 Q298 162 302 166 Q298 169 294 168 Q290 169 285 166 Z" />
+    </g>
   </g>
 </svg>
