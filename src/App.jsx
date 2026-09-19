@@ -10,7 +10,6 @@ import {
   Circle, 
   Users, 
   Luggage, 
-  User, 
   Sparkles,
   Plane,
   X,
@@ -22,6 +21,7 @@ import {
   AlertTriangle,
   Waves,
   ShieldCheck,
+  Clock,
   Car
 } from 'lucide-react';
 import './index.css';
@@ -33,36 +33,52 @@ const CITY_HERO_IMAGES = {
   Ayodhya: 'https://images.unsplash.com/photo-1590050752117-238cb0fb12b1?auto=format&fit=crop&w=1200&q=80'
 };
 
-const TRIP_DAYS = [
-  { day: 1, date: '2026-09-26', label: 'Sep 26', city: 'Transit / Prayagraj', hero: CITY_HERO_IMAGES.Transit, riverStatus: 'Airport Arrival • Highway Transfer to Prayagraj' },
-  { day: 2, date: '2026-09-27', label: 'Sep 27', city: 'Prayagraj / Varanasi', hero: CITY_HERO_IMAGES.Prayagraj, riverStatus: 'Sangam Confluence Boats: Running • Darshan' },
-  { day: 3, date: '2026-09-28', label: 'Sep 28', city: 'Varanasi', hero: CITY_HERO_IMAGES.Varanasi, riverStatus: 'Sunrise Cruise Active • Moderate Current' },
-  { day: 4, date: '2026-09-29', label: 'Sep 29', city: 'Varanasi', hero: CITY_HERO_IMAGES.Varanasi, riverStatus: 'Ganga Boating: Clear • Aarti Crowds Heavy' },
-  { day: 5, date: '2026-09-30', label: 'Sep 30', city: 'Ayodhya', hero: CITY_HERO_IMAGES.Ayodhya, riverStatus: 'Saryu River Aarti: Normal Water Level' },
-  { day: 6, date: '2026-10-01', label: 'Oct 1',  city: 'Ayodhya', hero: CITY_HERO_IMAGES.Ayodhya, riverStatus: 'Ram Mandir Darshan: Standard Queues' },
-  { day: 7, date: '2026-10-02', label: 'Oct 2',  city: 'Varanasi', hero: CITY_HERO_IMAGES.Varanasi, riverStatus: 'Silk Weaver Walks • Ghat Evening Walk' },
-  { day: 8, date: '2026-10-03', label: 'Oct 3',  city: 'Transit / Return', hero: CITY_HERO_IMAGES.Transit, riverStatus: 'Return Flight to Kochi (COK)' }
+const DEFAULT_TRIP_DAYS = [
+  { day: 1, date: '2026-09-26', label: 'Sep 26', city: 'Transit / Prayagraj', hero: CITY_HERO_IMAGES.Transit, riverStatus: 'Airport Arrival • Cab to Prayagraj Kashi Math' },
+  { day: 2, date: '2026-09-27', label: 'Sep 27', city: 'Prayagraj / Varanasi', hero: CITY_HERO_IMAGES.Prayagraj, riverStatus: 'Triveni Sangam Snan • Transfer to Varanasi' },
+  { day: 3, date: '2026-09-28', label: 'Sep 28', city: 'Varanasi', hero: CITY_HERO_IMAGES.Varanasi, riverStatus: 'Kashi Vishwanath Darshan • Ganga Aarti' },
+  { day: 4, date: '2026-09-29', label: 'Sep 29', city: 'Varanasi', hero: CITY_HERO_IMAGES.Varanasi, riverStatus: 'Sunrise Ghat Cruise • Sankat Mochan' },
+  { day: 5, date: '2026-09-30', label: 'Sep 30', city: 'Ayodhya', hero: CITY_HERO_IMAGES.Ayodhya, riverStatus: 'Saryu River Aarti • Evening Atmosphere' },
+  { day: 6, date: '2026-10-01', label: 'Oct 1',  city: 'Ayodhya', hero: CITY_HERO_IMAGES.Ayodhya, riverStatus: 'Ram Janmabhoomi & Hanuman Garhi' },
+  { day: 7, date: '2026-10-02', label: 'Oct 2',  city: 'Varanasi', hero: CITY_HERO_IMAGES.Varanasi, riverStatus: 'Silk Weaver Quarter • Final Ghat Walk' },
+  { day: 8, date: '2026-10-03', label: 'Oct 3',  city: 'Transit / Return', hero: CITY_HERO_IMAGES.Transit, riverStatus: 'Departure: Varanasi to Kochi (COK)' }
+];
+
+const PRE_TRIP_DEFAULTS = [
+  { id: 'pre-1', item: 'Print Darshan Tickets & Passes (Kashi & Ayodhya)', category: 'Pre-Trip', is_packed: false, assigned_to: 'All', target_bag: 'Handbag' },
+  { id: 'pre-2', item: 'Original Aadhaar / Govt Photo IDs for all 7 members', category: 'Pre-Trip', is_packed: false, assigned_to: 'All', target_bag: 'Handbag' },
+  { id: 'pre-3', item: 'Preventive Gastro/Food Kit (Probiotics, ORS, Vomistop, Antacids)', category: 'Pre-Trip', is_packed: false, assigned_to: 'All', target_bag: 'Cabin' },
+  { id: 'pre-4', item: 'Web Check-in for IndiGo 6E 738 (Opens 24 Sep, 16:05)', category: 'Pre-Trip', is_packed: false, assigned_to: 'All', target_bag: 'General' },
+  { id: 'pre-5', item: 'Toddler Flask / Thermos for warm water & safe formula', category: 'Pre-Trip', is_packed: false, assigned_to: 'Toddler', target_bag: 'Handbag' },
+  { id: 'pre-6', item: 'Slip-on footwear without laces (for frequent temple deposits)', category: 'Pre-Trip', is_packed: false, assigned_to: 'All', target_bag: 'General' },
+  { id: 'pre-7', item: 'Offline copy of Google Maps downloaded for Varanasi & Ayodhya', category: 'Pre-Trip', is_packed: false, assigned_to: 'All', target_bag: 'General' }
 ];
 
 export default function App() {
   const [activeTab, setActiveTab] = useState('itinerary');
   const [selectedDay, setSelectedDay] = useState(1);
-  const [checklistMode, setChecklistMode] = useState('person');
+  const [checklistMode, setChecklistMode] = useState('category');
   const [filterChoice, setFilterChoice] = useState('All');
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isEditingTipModal, setIsEditingTipModal] = useState(false);
+  const [isEditingDayModal, setIsEditingDayModal] = useState(false);
+  const [editingItemId, setEditingItemId] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // Offline-resilient states
+  // Core Data States
   const [itinerary, setItinerary] = useState(() => JSON.parse(localStorage.getItem('trip_itinerary') || '[]'));
   const [contacts, setContacts] = useState(() => JSON.parse(localStorage.getItem('trip_contacts') || '[]'));
-  const [packing, setPacking] = useState(() => JSON.parse(localStorage.getItem('packing_list') || '[]'));
+  const [packing, setPacking] = useState(() => {
+    const cached = JSON.parse(localStorage.getItem('packing_list') || '[]');
+    return cached.length ? cached : PRE_TRIP_DEFAULTS;
+  });
   const [members, setMembers] = useState(() => JSON.parse(localStorage.getItem('trip_members') || '[]'));
   const [bags, setBags] = useState(() => JSON.parse(localStorage.getItem('trip_bags') || '[]'));
-  const [dayTips, setDayTips] = useState(() => JSON.parse(localStorage.getItem('trip_day_meta') || '{}'));
+  const [dayMetaOverrides, setDayMetaOverrides] = useState(() => JSON.parse(localStorage.getItem('trip_day_meta') || '{}'));
 
-  // Form states
-  const [tipInput, setTipInput] = useState('');
+  // Day Form State
+  const [dayEditForm, setDayEditForm] = useState({ city: '', status: '', tip: '' });
+
+  // Event Form State
   const [newActivity, setNewActivity] = useState({ 
     day_number: 1, 
     date: '2026-09-26', 
@@ -76,7 +92,7 @@ export default function App() {
     notes: '' 
   });
   const [newContact, setNewContact] = useState({ name: '', role: '', phone: '', notes: '' });
-  const [newItem, setNewItem] = useState({ item: '', category: 'General', assigned_to: 'All', target_bag: 'General' });
+  const [newItem, setNewItem] = useState({ item: '', category: 'Pre-Trip', assigned_to: 'All', target_bag: 'Handbag' });
   const [newMember, setNewMember] = useState({ name: '', role: 'Adult' });
   const [newBag, setNewBag] = useState({ bag_name: '', bag_type: 'Trolley', assigned_to: '' });
 
@@ -97,41 +113,140 @@ export default function App() {
 
       if (itinRes.data) { setItinerary(itinRes.data); localStorage.setItem('trip_itinerary', JSON.stringify(itinRes.data)); }
       if (contRes.data) { setContacts(contRes.data); localStorage.setItem('trip_contacts', JSON.stringify(contRes.data)); }
-      if (packRes.data) { setPacking(packRes.data); localStorage.setItem('packing_list', JSON.stringify(packRes.data)); }
+      if (packRes.data && packRes.data.length > 0) { 
+        setPacking(packRes.data); 
+        localStorage.setItem('packing_list', JSON.stringify(packRes.data)); 
+      }
       if (membRes.data) { setMembers(membRes.data); localStorage.setItem('trip_members', JSON.stringify(membRes.data)); }
       if (bagRes.data) { setBags(bagRes.data); localStorage.setItem('trip_bags', JSON.stringify(bagRes.data)); }
       
       if (tipsRes.data) {
-        const tipsMap = {};
-        tipsRes.data.forEach(t => { tipsMap[t.day_number] = t.custom_tip; });
-        setDayTips(tipsMap);
-        localStorage.setItem('trip_day_meta', JSON.stringify(tipsMap));
+        const metaMap = {};
+        tipsRes.data.forEach(t => { 
+          metaMap[t.day_number] = { 
+            tip: t.custom_tip || '', 
+            city: t.custom_city || '', 
+            status: t.custom_status || '' 
+          }; 
+        });
+        setDayMetaOverrides(metaMap);
+        localStorage.setItem('trip_day_meta', JSON.stringify(metaMap));
       }
     } catch (err) {
       console.warn("Working offline with cached data", err);
     } finally {
-      setTimeout(() => setLoading(false), 350);
+      setTimeout(() => setLoading(false), 300);
     }
   }
 
-  // --- OPTIMISTIC CRUD ACTIONS ---
-  async function addItineraryItem(e) {
+  // Live dynamically calculated trip days (merges defaults with custom user edits)
+  const tripDays = DEFAULT_TRIP_DAYS.map(d => {
+    const override = dayMetaOverrides[d.day];
+    const city = override?.city || d.city;
+    const riverStatus = override?.status || d.riverStatus;
+    
+    // Choose matching dynamic background
+    let hero = d.hero;
+    const lowerCity = city.toLowerCase();
+    if (lowerCity.includes('prayagraj')) hero = CITY_HERO_IMAGES.Prayagraj;
+    else if (lowerCity.includes('ayodhya')) hero = CITY_HERO_IMAGES.Ayodhya;
+    else if (lowerCity.includes('transit')) hero = CITY_HERO_IMAGES.Transit;
+    else if (lowerCity.includes('varanasi')) hero = CITY_HERO_IMAGES.Varanasi;
+
+    return { ...d, city, riverStatus, hero };
+  });
+
+  const activeDayMeta = tripDays.find(d => d.day === selectedDay) || tripDays[0];
+  const dayItinerary = itinerary.filter(i => Number(i.day_number) === Number(selectedDay));
+
+  const hasDarshanOnActiveDay = dayItinerary.some(item => 
+    item.activity?.toLowerCase().includes('vishwanath') || 
+    item.activity?.toLowerCase().includes('ram') || 
+    item.activity?.toLowerCase().includes('hanuman garhi') ||
+    item.activity?.toLowerCase().includes('darshan')
+  );
+
+  const activeDayDescription = dayMetaOverrides[selectedDay]?.tip || (
+    dayItinerary.length > 0 
+      ? `Highlights: ${dayItinerary.map(i => i.activity).join(' • ')}`
+      : `No items scheduled yet for Day ${selectedDay}. Tap + to add.`
+  );
+
+  // --- SAVE / EDIT DAY METADATA (CITY, STATUS, HIGHLIGHT) ---
+  async function saveDaySetup(e) {
+    e.preventDefault();
+    const updated = {
+      ...dayMetaOverrides,
+      [selectedDay]: {
+        city: dayEditForm.city,
+        status: dayEditForm.status,
+        tip: dayEditForm.tip
+      }
+    };
+    setDayMetaOverrides(updated);
+    localStorage.setItem('trip_day_meta', JSON.stringify(updated));
+    setIsEditingDayModal(false);
+
+    try {
+      await supabase.from('trip_day_meta').upsert({
+        day_number: selectedDay,
+        custom_city: dayEditForm.city,
+        custom_status: dayEditForm.status,
+        custom_tip: dayEditForm.tip
+      });
+    } catch (err) {
+      console.warn("Offline: day setup saved locally", err);
+    }
+  }
+
+  function openEditDayModal() {
+    setDayEditForm({
+      city: dayMetaOverrides[selectedDay]?.city || activeDayMeta.city,
+      status: dayMetaOverrides[selectedDay]?.status || activeDayMeta.riverStatus,
+      tip: dayMetaOverrides[selectedDay]?.tip || (activeDayDescription.startsWith('Highlights:') ? '' : activeDayDescription)
+    });
+    setIsEditingDayModal(true);
+  }
+
+  // --- SAVE / EDIT ITINERARY ITEM ---
+  async function saveItineraryItem(e) {
     e.preventDefault();
     if (!newActivity.activity.trim()) return;
 
-    const optimisticItem = {
-      ...newActivity,
-      id: Date.now()
-    };
+    if (editingItemId) {
+      const updated = itinerary.map(item => item.id === editingItemId ? { ...newActivity, id: editingItemId } : item);
+      setItinerary(updated);
+      localStorage.setItem('trip_itinerary', JSON.stringify(updated));
+      setIsModalOpen(false);
+      setEditingItemId(null);
 
-    const updated = [...itinerary, optimisticItem];
-    setItinerary(updated);
-    localStorage.setItem('trip_itinerary', JSON.stringify(updated));
-    setIsModalOpen(false);
+      try {
+        await supabase.from('trip_itinerary').update(newActivity).eq('id', editingItemId);
+      } catch (err) {
+        console.warn("Offline: updated locally", err);
+      }
+    } else {
+      const optimisticItem = { ...newActivity, id: Date.now() };
+      const updated = [...itinerary, optimisticItem];
+      setItinerary(updated);
+      localStorage.setItem('trip_itinerary', JSON.stringify(updated));
+      setIsModalOpen(false);
+
+      try {
+        const { data, error } = await supabase.from('trip_itinerary').insert([newActivity]).select();
+        if (!error && data && data.length > 0) {
+          const reconciled = updated.map(item => item.id === optimisticItem.id ? data[0] : item);
+          setItinerary(reconciled);
+          localStorage.setItem('trip_itinerary', JSON.stringify(reconciled));
+        }
+      } catch (err) {
+        console.warn("Offline: added locally", err);
+      }
+    }
 
     setNewActivity({ 
       day_number: selectedDay, 
-      date: TRIP_DAYS.find(d => d.day === selectedDay)?.date || '2026-09-26', 
+      date: tripDays.find(d => d.day === selectedDay)?.date || '2026-09-26', 
       location: 'Varanasi', 
       type: 'Activity', 
       activity: '', 
@@ -141,36 +256,23 @@ export default function App() {
       accessibility: 'normal',
       notes: '' 
     });
-
-    try {
-      const { data, error } = await supabase.from('trip_itinerary').insert([newActivity]).select();
-      if (error) {
-        console.error("Supabase insert issue:", error.message);
-      } else if (data && data.length > 0) {
-        const reconciled = updated.map(item => item.id === optimisticItem.id ? data[0] : item);
-        setItinerary(reconciled);
-        localStorage.setItem('trip_itinerary', JSON.stringify(reconciled));
-      }
-    } catch (err) {
-      console.warn("Offline: cached in localStorage", err);
-    }
   }
 
-  async function saveDayTip(e) {
-    e.preventDefault();
-    const updated = { ...dayTips, [selectedDay]: tipInput };
-    setDayTips(updated);
-    localStorage.setItem('trip_day_meta', JSON.stringify(updated));
-    setIsEditingTipModal(false);
-
-    try {
-      await supabase.from('trip_day_meta').upsert({
-        day_number: selectedDay,
-        custom_tip: tipInput
-      });
-    } catch (err) {
-      console.warn("Offline: tip saved locally", err);
-    }
+  function startEditingActivity(item) {
+    setEditingItemId(item.id);
+    setNewActivity({
+      day_number: item.day_number || selectedDay,
+      date: item.date || '2026-09-26',
+      location: item.location || 'Varanasi',
+      type: item.type || 'Activity',
+      activity: item.activity || '',
+      flight_no: item.flight_no || '',
+      time_info: item.time_info || '',
+      map_link: item.map_link || '',
+      accessibility: item.accessibility || 'normal',
+      notes: item.notes || ''
+    });
+    setIsModalOpen(true);
   }
 
   async function addPackingItem(e) {
@@ -279,7 +381,7 @@ export default function App() {
   }
 
   async function deleteEntrySafely(table, id, listState, setListState, storageKey, label) {
-    if (!window.confirm(`Are you sure you want to remove "${label || 'this item'}"?`)) return;
+    if (!window.confirm(`Delete "${label || 'this item'}"?`)) return;
     const updated = listState.filter(item => item.id !== id);
     setListState(updated);
     localStorage.setItem(storageKey, JSON.stringify(updated));
@@ -291,26 +393,20 @@ export default function App() {
     }
   }
 
-  // --- Dynamic calculations ---
-  const activeDayMeta = TRIP_DAYS.find(d => d.day === selectedDay) || TRIP_DAYS[0];
-  const dayItinerary = itinerary.filter(i => Number(i.day_number) === Number(selectedDay));
-
-  const activeDayDescription = dayTips[selectedDay] || (
-    dayItinerary.length > 0 
-      ? `Highlights: ${dayItinerary.map(i => i.activity).join(' • ')}`
-      : `No items scheduled yet for Day ${selectedDay}. Tap pencil or + to add.`
-  );
-
   const filteredPacking = packing.filter(p => {
-    if (filterChoice === 'All') return true;
-    if (checklistMode === 'person') return p.assigned_to === filterChoice;
-    if (checklistMode === 'bag') return p.target_bag === filterChoice;
+    if (checklistMode === 'category') {
+      if (filterChoice === 'All') return true;
+      if (filterChoice === 'Pre-Trip') return p.category === 'Pre-Trip';
+      if (filterChoice === 'General') return p.category !== 'Pre-Trip';
+    }
+    if (checklistMode === 'person') return filterChoice === 'All' ? true : p.assigned_to === filterChoice;
+    if (checklistMode === 'bag') return filterChoice === 'All' ? true : p.target_bag === filterChoice;
     return true;
   });
 
   const packedCount = packing.filter(p => p.is_packed).length;
   const packedPercent = packing.length ? Math.round((packedCount / packing.length) * 100) : 0;
-  const leadEmergencyContact = contacts.find(c => c.role?.toLowerCase().includes('emergency') || c.role?.toLowerCase().includes('cab') || c.role?.toLowerCase().includes('driver')) || contacts[0];
+  const preTripPending = packing.filter(p => p.category === 'Pre-Trip' && !p.is_packed).length;
 
   function getMapUrl(item) {
     if (item.map_link && item.map_link.startsWith('http')) return item.map_link;
@@ -345,8 +441,7 @@ export default function App() {
     }).join('\n\n');
 
     const focus = `\n\n📌 *Day Goal:* ${activeDayDescription}`;
-    const driver = leadEmergencyContact ? `\n\n📞 *Driver/Lead Contact:* ${leadEmergencyContact.name} (${leadEmergencyContact.phone})` : '';
-    const fullMessage = encodeURIComponent(header + (events || 'No activities logged yet.') + focus + driver);
+    const fullMessage = encodeURIComponent(header + (events || 'No activities logged yet.') + focus);
     window.open(`https://api.whatsapp.com/send?text=${fullMessage}`, '_blank');
   }
 
@@ -369,7 +464,7 @@ export default function App() {
         </div>
       </header>
 
-      {/* KASHI VISHWANATH ANIMATED LOADING SPLASH */}
+      {/* KASHI VISHWANATH ANIMATED SPLASH */}
       {loading ? (
         <div className="kashi-splash-wrapper">
           <div className="kashi-mandala-container">
@@ -393,7 +488,7 @@ export default function App() {
           <div className="kashi-subtitle">Kashi Vishwanath Mandir</div>
           <div className="kashi-loader-pill">
             <span className="kashi-flame-dot"></span>
-            <span>Syncing Itinerary, Routes & GPS...</span>
+            <span>Syncing Schedule, Passes & Offline Map...</span>
           </div>
         </div>
       ) : (
@@ -403,9 +498,9 @@ export default function App() {
               ========================================================= */}
           {activeTab === 'itinerary' && (
             <div>
-              {/* Day Carousel */}
+              {/* Day Carousel with inline edit indicator */}
               <div className="day-scroller">
-                {TRIP_DAYS.map(d => (
+                {tripDays.map(d => (
                   <div
                     key={d.day}
                     onClick={() => { 
@@ -420,12 +515,12 @@ export default function App() {
                   >
                     <div className="chip-num">Day {d.day}</div>
                     <div className="chip-date">{d.label}</div>
-                    <div className="chip-city">{d.city.split(' ')[0]}</div>
+                    <div className="chip-city">{d.city.split(' / ')[0]}</div>
                   </div>
                 ))}
               </div>
 
-              {/* Weather & River/Highway Condition Strip */}
+              {/* Weather & Road/River Strip */}
               <div className="weather-strip">
                 <div className="weather-indicator">
                   <Waves size={14} color="#16a34a" />
@@ -434,37 +529,46 @@ export default function App() {
                 <span>☀️ ~31°C</span>
               </div>
 
-              {/* Day Focus & WhatsApp Share Bar */}
+              {/* Day Focus & Edit Banner */}
               <div className="day-spotlight-pill">
-                <div className="day-spotlight-content">
+                <div className="day-spotlight-content" onClick={openEditDayModal} style={{ cursor: 'pointer' }}>
                   <Compass size={18} color="#b45309" style={{ flexShrink: 0 }} />
-                  <div>{activeDayDescription}</div>
+                  <div>
+                    <strong>{activeDayMeta.city}:</strong> {activeDayDescription}
+                  </div>
                 </div>
                 <div style={{ display: 'flex', gap: '6px' }}>
                   <button 
                     onClick={shareDayToWhatsApp} 
                     className="btn-spotlight-action btn-whatsapp-share"
-                    title="Broadcast Day Schedule to Family WhatsApp"
+                    title="Broadcast Day Schedule to WhatsApp"
                   >
                     <Share2 size={13} />
                   </button>
                   <button 
-                    onClick={() => { 
-                      setTipInput(dayTips[selectedDay] || ''); 
-                      setIsEditingTipModal(true); 
-                    }} 
+                    onClick={openEditDayModal} 
                     className="btn-spotlight-action"
-                    title="Edit Day Goal"
+                    title="Edit Day Title, Status & Summary"
                   >
                     <Pencil size={13} />
                   </button>
                 </div>
               </div>
 
-              {/* Connected Vertical Timeline Spine */}
+              {/* Contextual Darshan Security Warning on Temple Days */}
+              {hasDarshanOnActiveDay && (
+                <div className="tag-darshan-warning" style={{ margin: '0 0 14px 0' }}>
+                  <AlertTriangle size={16} style={{ flexShrink: 0, marginTop: '2px' }} />
+                  <div>
+                    <strong>Mandir Darshan Checklist:</strong> Carry physical Aadhaar cards & ticket printouts. Cellphones, car keys, leather belts & bags are barred inside the sanctum.
+                  </div>
+                </div>
+              )}
+
+              {/* Vertical Timeline Spine */}
               {dayItinerary.length === 0 ? (
                 <div style={{ textAlign: 'center', padding: '36px 16px', color: '#a8a29e', background: '#fff', borderRadius: '14px', border: '1px dashed #cbd5e1' }}>
-                  No events scheduled for Day {selectedDay}. Tap <strong>+</strong> below to add one.
+                  No items scheduled yet for Day {selectedDay}. Tap <strong>+</strong> below to add one.
                 </div>
               ) : (
                 <div className="timeline-container">
@@ -476,10 +580,6 @@ export default function App() {
                                      item.activity?.toLowerCase().includes('aarti') || 
                                      item.activity?.toLowerCase().includes('darshan') ||
                                      item.activity?.toLowerCase().includes('garhi');
-                    
-                    const isHighSecurityTemple = item.activity?.toLowerCase().includes('vishwanath') || 
-                                                 item.activity?.toLowerCase().includes('janmabhoomi') ||
-                                                 item.activity?.toLowerCase().includes('hanuman garhi');
 
                     const cityClass = isFlight 
                       ? 'city-transit'
@@ -495,7 +595,7 @@ export default function App() {
 
                     return (
                       <div key={item.id} className="timeline-node-wrapper">
-                        {/* Dynamic Timeline Node Icon */}
+                        {/* Dynamic Node Bullet */}
                         <div className="timeline-node-bullet">
                           {isFlight ? '✈️' : isDrive ? '🚗' : isTemple ? '🛕' : '📍'}
                         </div>
@@ -518,12 +618,24 @@ export default function App() {
                               </div>
                               <div className="card-title-text">{item.activity}</div>
                             </div>
-                            <button 
-                              onClick={() => deleteEntrySafely('trip_itinerary', item.id, itinerary, setItinerary, 'trip_itinerary', item.activity)} 
-                              style={{ background: 'none', border: 'none', color: '#d6d3d1', cursor: 'pointer', padding: '4px' }}
-                            >
-                              <Trash2 size={15} />
-                            </button>
+                            
+                            {/* ACTION BUTTONS: EDIT & DELETE */}
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                              <button 
+                                onClick={() => startEditingActivity(item)} 
+                                style={{ background: 'none', border: 'none', color: '#78716c', cursor: 'pointer', padding: '4px' }}
+                                title="Edit Item"
+                              >
+                                <Pencil size={15} />
+                              </button>
+                              <button 
+                                onClick={() => deleteEntrySafely('trip_itinerary', item.id, itinerary, setItinerary, 'trip_itinerary', item.activity)} 
+                                style={{ background: 'none', border: 'none', color: '#d6d3d1', cursor: 'pointer', padding: '4px' }}
+                                title="Delete Item"
+                              >
+                                <Trash2 size={15} />
+                              </button>
+                            </div>
                           </div>
 
                           {(item.flight_no || item.time_info) && (
@@ -538,13 +650,6 @@ export default function App() {
                           )}
 
                           {item.notes && <div className="card-notes-text">{item.notes}</div>}
-
-                          {isHighSecurityTemple && (
-                            <div className="tag-darshan-warning">
-                              <AlertTriangle size={14} style={{ flexShrink: 0, marginTop: '2px' }} />
-                              <span><strong>Security Check:</strong> Phones, leather belts & electronic keys strictly barred in sanctum. Deposit at hotel or official gate locker.</span>
-                            </div>
-                          )}
 
                           {!isFlight && (
                             <a
@@ -566,14 +671,25 @@ export default function App() {
           )}
 
           {/* =========================================================
-              2. CHECKLIST TAB
+              2. CHECKLIST & PRE-TRIP REMINDERS TAB
               ========================================================= */}
           {activeTab === 'packing' && (
             <div>
+              {/* Pre-Trip Readiness Alert Banner */}
+              {preTripPending > 0 && (
+                <div style={{ background: '#fef3c7', border: '1px solid #fde68a', borderRadius: '12px', padding: '10px 14px', marginBottom: '14px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <Clock size={20} color="#b45309" style={{ flexShrink: 0 }} />
+                  <div style={{ fontSize: '0.8rem', color: '#92400e' }}>
+                    <strong>{preTripPending} pre-departure essentials pending</strong> (tickets, ID proofs, meds kit). Tap below to view them.
+                  </div>
+                </div>
+              )}
+
+              {/* Progress Ring Card */}
               <div className="progress-ring-card">
                 <div className="progress-ring-left">
-                  <div className="progress-ring-title">Packing Completion</div>
-                  <div className="progress-ring-sub">{packedCount} of {packing.length} items verified</div>
+                  <div className="progress-ring-title">Checklist & Packing</div>
+                  <div className="progress-ring-sub">{packedCount} of {packing.length} tasks completed</div>
                 </div>
                 <div className="ring-circle-box">
                   <svg width="58" height="58">
@@ -595,48 +711,72 @@ export default function App() {
                 </div>
               </div>
 
+              {/* Switches */}
               <div className="view-switch-luxury">
+                <button 
+                  onClick={() => { setChecklistMode('category'); setFilterChoice('All'); }}
+                  className={`view-btn-luxury ${checklistMode === 'category' ? 'active' : ''}`}
+                >
+                  By Stage (Pre-Trip)
+                </button>
                 <button 
                   onClick={() => { setChecklistMode('person'); setFilterChoice('All'); }}
                   className={`view-btn-luxury ${checklistMode === 'person' ? 'active' : ''}`}
                 >
-                  Filter By Traveler
+                  By Person
                 </button>
                 <button 
                   onClick={() => { setChecklistMode('bag'); setFilterChoice('All'); }}
                   className={`view-btn-luxury ${checklistMode === 'bag' ? 'active' : ''}`}
                 >
-                  Filter By Bag
+                  By Bag
                 </button>
               </div>
 
+              {/* Filter Tray */}
               <div className="filter-tray">
-                <button
-                  onClick={() => setFilterChoice('All')}
-                  className={`filter-pill ${filterChoice === 'All' ? 'active' : ''}`}
-                >
-                  All Items ({packing.length})
-                </button>
-                {checklistMode === 'person' && members.map(m => (
-                  <button
-                    key={m.id}
-                    onClick={() => setFilterChoice(m.name)}
-                    className={`filter-pill ${filterChoice === m.name ? 'active' : ''}`}
-                  >
-                    {m.name} ({packing.filter(p => p.assigned_to === m.name).length})
-                  </button>
-                ))}
-                {checklistMode === 'bag' && bags.map(b => (
-                  <button
-                    key={b.id}
-                    onClick={() => setFilterChoice(b.bag_name)}
-                    className={`filter-pill ${filterChoice === b.bag_name ? 'active' : ''}`}
-                  >
-                    🧳 {b.bag_name} ({packing.filter(p => p.target_bag === b.bag_name).length})
-                  </button>
-                ))}
+                {checklistMode === 'category' && (
+                  <>
+                    <button onClick={() => setFilterChoice('All')} className={`filter-pill ${filterChoice === 'All' ? 'active' : ''}`}>
+                      All Tasks ({packing.length})
+                    </button>
+                    <button onClick={() => setFilterChoice('Pre-Trip')} className={`filter-pill ${filterChoice === 'Pre-Trip' ? 'active' : ''}`}>
+                      📑 Pre-Trip Protocol ({packing.filter(p => p.category === 'Pre-Trip').length})
+                    </button>
+                    <button onClick={() => setFilterChoice('General')} className={`filter-pill ${filterChoice === 'General' ? 'active' : ''}`}>
+                      🧳 Luggage Items ({packing.filter(p => p.category !== 'Pre-Trip').length})
+                    </button>
+                  </>
+                )}
+
+                {checklistMode === 'person' && (
+                  <>
+                    <button onClick={() => setFilterChoice('All')} className={`filter-pill ${filterChoice === 'All' ? 'active' : ''}`}>
+                      All ({packing.length})
+                    </button>
+                    {members.map(m => (
+                      <button key={m.id} onClick={() => setFilterChoice(m.name)} className={`filter-pill ${filterChoice === m.name ? 'active' : ''}`}>
+                        {m.name} ({packing.filter(p => p.assigned_to === m.name).length})
+                      </button>
+                    ))}
+                  </>
+                )}
+
+                {checklistMode === 'bag' && (
+                  <>
+                    <button onClick={() => setFilterChoice('All')} className={`filter-pill ${filterChoice === 'All' ? 'active' : ''}`}>
+                      All Bags
+                    </button>
+                    {bags.map(b => (
+                      <button key={b.id} onClick={() => setFilterChoice(b.bag_name)} className={`filter-pill ${filterChoice === b.bag_name ? 'active' : ''}`}>
+                        🧳 {b.bag_name} ({packing.filter(p => p.target_bag === b.bag_name).length})
+                      </button>
+                    ))}
+                  </>
+                )}
               </div>
 
+              {/* Items */}
               <div>
                 {filteredPacking.map(p => (
                   <div key={p.id} className="luxury-card" style={{ display: 'flex', alignItems: 'center', padding: '12px 14px', marginBottom: '8px' }}>
@@ -646,7 +786,10 @@ export default function App() {
                         <div style={{ textDecoration: p.is_packed ? 'line-through' : 'none', color: p.is_packed ? '#a8a29e' : '#1c1917', fontSize: '0.9rem', fontWeight: '600' }}>
                           {p.item}
                         </div>
-                        <div style={{ display: 'flex', gap: '5px', marginTop: '3px' }}>
+                        <div style={{ display: 'flex', gap: '5px', marginTop: '3px', flexWrap: 'wrap' }}>
+                          {p.category === 'Pre-Trip' && (
+                            <span style={{ fontSize: '0.65rem', background: '#fef3c7', color: '#92400e', padding: '1px 6px', borderRadius: '4px', fontWeight: 'bold' }}>⚡ Pre-Trip</span>
+                          )}
                           <span style={{ fontSize: '0.65rem', background: '#f5f5f4', color: '#57534e', padding: '1px 6px', borderRadius: '4px' }}>👤 {p.assigned_to || 'All'}</span>
                           {p.target_bag && p.target_bag !== 'General' && (
                             <span style={{ fontSize: '0.65rem', background: '#e0f2fe', color: '#0369a1', padding: '1px 6px', borderRadius: '4px' }}>🧳 {p.target_bag}</span>
@@ -720,12 +863,12 @@ export default function App() {
           )}
 
           {/* =========================================================
-              4. DIRECTORY TAB
+              4. DIRECTORY TAB (Central Emergency & Leads Hub)
               ========================================================= */}
           {activeTab === 'contacts' && (
             <div>
               <div style={{ marginBottom: '14px', fontSize: '0.82rem', color: '#78716c' }}>
-                Tap on any phone number to dial directly via carrier network.
+                Directory for temple guides, Math managers, and cab drivers. Tap any number to call directly.
               </div>
               <div>
                 {contacts.map(c => (
@@ -752,21 +895,23 @@ export default function App() {
         </main>
       )}
 
-      {/* PERSISTENT SOS & FAB BUTTONS */}
-      {!loading && leadEmergencyContact && (
-        <a href={`tel:${leadEmergencyContact.phone}`} className="fab-sos-luxury">
-          <Phone size={13} /> Call {leadEmergencyContact.role || 'Driver'}
-        </a>
-      )}
-
+      {/* FLOATING ACTION BUTTON (+) */}
       {!loading && (
         <button 
           onClick={() => {
-            setNewActivity(prev => ({
-              ...prev,
+            setEditingItemId(null);
+            setNewActivity({
               day_number: selectedDay,
-              date: TRIP_DAYS.find(d => d.day === selectedDay)?.date || '2026-09-26'
-            }));
+              date: tripDays.find(d => d.day === selectedDay)?.date || '2026-09-26',
+              location: selectedDay === 1 ? 'Transit (VNS → Prayagraj)' : 'Varanasi',
+              type: selectedDay === 1 ? 'Drive' : 'Activity',
+              activity: '',
+              flight_no: '',
+              time_info: '',
+              map_link: '',
+              accessibility: 'normal',
+              notes: ''
+            });
             setIsModalOpen(true);
           }} 
           className="fab-btn-luxury" 
@@ -797,46 +942,72 @@ export default function App() {
         </nav>
       )}
 
-      {/* EDIT DAY GOAL MODAL */}
-      {isEditingTipModal && (
-        <div className="modal-overlay" onClick={() => setIsEditingTipModal(false)}>
+      {/* EDIT DAY SETUP MODAL (CITY, STATUS, & GOAL) */}
+      {isEditingDayModal && (
+        <div className="modal-overlay" onClick={() => setIsEditingDayModal(false)}>
           <div className="modal-sheet" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
-              <h2 className="modal-title">Edit Day {selectedDay} Focus / Note</h2>
-              <button onClick={() => setIsEditingTipModal(false)} className="btn-close-modal">
+              <h2 className="modal-title">Customize Day {selectedDay} Setup</h2>
+              <button onClick={() => setIsEditingDayModal(false)} className="btn-close-modal">
                 <X size={18} />
               </button>
             </div>
-            <form onSubmit={saveDayTip}>
-              <p style={{ fontSize: '0.78rem', color: '#78716c', marginBottom: '8px' }}>
-                Enter custom guidance, darshan timings, or reminders for this day. Leave blank to auto-summarize your activities.
-              </p>
-              <textarea
-                value={tipInput}
-                onChange={(e) => setTipInput(e.target.value)}
-                placeholder="e.g., Direct drive to Prayagraj; check-in at Kashi Math and rest."
-                rows={4}
+            <form onSubmit={saveDaySetup}>
+              <label style={{ fontSize: '0.75rem', fontWeight: 'bold', color: '#78350f', display: 'block', marginBottom: '4px' }}>
+                Day City / Location Name
+              </label>
+              <input
+                type="text"
+                value={dayEditForm.city}
+                onChange={(e) => setDayEditForm({ ...dayEditForm, city: e.target.value })}
+                placeholder="e.g. Prayagraj (Kashi Math)"
                 className="input-box"
-                style={{ resize: 'vertical' }}
+                style={{ marginBottom: '10px' }}
+                required
               />
+
+              <label style={{ fontSize: '0.75rem', fontWeight: 'bold', color: '#78350f', display: 'block', marginBottom: '4px' }}>
+                Highway, River & Transit Status Strip
+              </label>
+              <input
+                type="text"
+                value={dayEditForm.status}
+                onChange={(e) => setDayEditForm({ ...dayEditForm, status: e.target.value })}
+                placeholder="e.g. Airport Pickup • Night Cab to Prayagraj"
+                className="input-box"
+                style={{ marginBottom: '10px' }}
+              />
+
+              <label style={{ fontSize: '0.75rem', fontWeight: 'bold', color: '#78350f', display: 'block', marginBottom: '4px' }}>
+                Day Summary / Highlights Note
+              </label>
+              <textarea
+                value={dayEditForm.tip}
+                onChange={(e) => setDayEditForm({ ...dayEditForm, tip: e.target.value })}
+                placeholder="Summary for this day. Leave blank to auto-summarize events."
+                rows={3}
+                className="input-box"
+                style={{ resize: 'vertical', marginBottom: '12px' }}
+              />
+
               <button type="submit" className="btn-cta">
-                Save Day Focus
+                Save Day Setup
               </button>
             </form>
           </div>
         </div>
       )}
 
-      {/* ADD ITEM MODAL */}
+      {/* ADD / EDIT SCHEDULE & LIST MODAL */}
       {isModalOpen && (
         <div className="modal-overlay" onClick={() => setIsModalOpen(false)}>
           <div className="modal-sheet" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
               <h2 className="modal-title">
-                {activeTab === 'itinerary' && `Day ${selectedDay} Schedule`}
-                {activeTab === 'packing' && 'Add Checklist Item'}
+                {activeTab === 'itinerary' && (editingItemId ? `Edit Day ${selectedDay} Activity` : `Add to Day ${selectedDay}`)}
+                {activeTab === 'packing' && 'Add Checklist / Pre-Trip Item'}
                 {activeTab === 'party' && 'Register Member / Bag'}
-                {activeTab === 'contacts' && 'Add Emergency Contact'}
+                {activeTab === 'contacts' && 'Add Contact to Directory'}
               </h2>
               <button onClick={() => setIsModalOpen(false)} className="btn-close-modal">
                 <X size={18} />
@@ -845,7 +1016,7 @@ export default function App() {
 
             {/* ITINERARY MODAL FORM */}
             {activeTab === 'itinerary' && (
-              <form onSubmit={addItineraryItem}>
+              <form onSubmit={saveItineraryItem}>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', marginBottom: '8px' }}>
                   <select
                     value={newActivity.type}
@@ -876,14 +1047,14 @@ export default function App() {
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', marginBottom: '8px' }}>
                     <input
                       type="text"
-                      placeholder={newActivity.type === 'Drive' ? "Vehicle (e.g. Innova / Traveller)" : "Flight No (e.g. 6E 543)"}
+                      placeholder={newActivity.type === 'Drive' ? "Vehicle (e.g. Innova / Traveller)" : "Flight No (e.g. 6E 738)"}
                       value={newActivity.flight_no}
                       onChange={(e) => setNewActivity({ ...newActivity, flight_no: e.target.value })}
                       className="input-box"
                     />
                     <input
                       type="text"
-                      placeholder={newActivity.type === 'Drive' ? "Duration (e.g. 1:30 PM - 4:30 PM)" : "Time (e.g. 06:15 - 12:30)"}
+                      placeholder="Timing (e.g. 9 pm to 12:30 Am)"
                       value={newActivity.time_info}
                       onChange={(e) => setNewActivity({ ...newActivity, time_info: e.target.value })}
                       className="input-box"
@@ -893,7 +1064,7 @@ export default function App() {
 
                 <input
                   type="text"
-                  placeholder={newActivity.type === 'Drive' ? "Destination (e.g. Drive to Prayagraj & Stay at Kashi Math)" : newActivity.type === 'Flight' ? "Flight Route" : "Activity or Temple (e.g. Sankat Mochan)"}
+                  placeholder={newActivity.type === 'Drive' ? "Destination (e.g. Prayagraj Kashi Math)" : "Activity or Temple"}
                   value={newActivity.activity}
                   onChange={(e) => setNewActivity({ ...newActivity, activity: e.target.value })}
                   className="input-box"
@@ -909,7 +1080,7 @@ export default function App() {
                     >
                       <option value="normal">Standard Walk</option>
                       <option value="stroller_yes">Stroller Friendly</option>
-                      <option value="stairs">Ghat Stairs / Narrow Galies</option>
+                      <option value="stairs">Ghat Stairs / Galies</option>
                     </select>
                     <input
                       type="text"
@@ -923,13 +1094,13 @@ export default function App() {
 
                 <input
                   type="text"
-                  placeholder="Notes (e.g. Driver contact, Room booked, Toll/Highway notes)"
+                  placeholder="Notes (e.g. Web check-in dates, darshan rules)"
                   value={newActivity.notes}
                   onChange={(e) => setNewActivity({ ...newActivity, notes: e.target.value })}
                   className="input-box"
                 />
                 <button type="submit" className="btn-cta">
-                  Save to Schedule
+                  {editingItemId ? 'Update Activity' : 'Save to Schedule'}
                 </button>
               </form>
             )}
@@ -939,13 +1110,21 @@ export default function App() {
               <form onSubmit={addPackingItem}>
                 <input
                   type="text"
-                  placeholder="Item Name (e.g. Diapers, Aadhaar Card)"
+                  placeholder="Task or item (e.g. Print Tickets, ORS Sachets)"
                   value={newItem.item}
                   onChange={(e) => setNewItem({ ...newItem, item: e.target.value })}
                   className="input-box"
                   required
                 />
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', marginBottom: '8px' }}>
+                  <select
+                    value={newItem.category}
+                    onChange={(e) => setNewItem({ ...newItem, category: e.target.value })}
+                    className="select-box"
+                  >
+                    <option value="Pre-Trip">⚡ Pre-Trip Checklist</option>
+                    <option value="Luggage">🧳 Luggage Item</option>
+                  </select>
                   <select
                     value={newItem.assigned_to}
                     onChange={(e) => setNewItem({ ...newItem, assigned_to: e.target.value })}
@@ -954,22 +1133,14 @@ export default function App() {
                     <option value="All">Traveler: All</option>
                     {members.map(m => <option key={m.id} value={m.name}>{m.name}</option>)}
                   </select>
-                  <select
-                    value={newItem.target_bag}
-                    onChange={(e) => setNewItem({ ...newItem, target_bag: e.target.value })}
-                    className="select-box"
-                  >
-                    <option value="General">Bag: General</option>
-                    {bags.map(b => <option key={b.id} value={b.bag_name}>{b.bag_name}</option>)}
-                  </select>
                 </div>
                 <button type="submit" className="btn-cta">
-                  Add to Checklist
+                  Save to Checklist
                 </button>
               </form>
             )}
 
-            {/* TRAVELERS & BAGS MODAL FORM */}
+            {/* TRAVELERS MODAL FORM */}
             {activeTab === 'party' && (
               <div>
                 <form onSubmit={addMember} style={{ marginBottom: '16px' }}>
@@ -1009,27 +1180,6 @@ export default function App() {
                     className="input-box"
                     required
                   />
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
-                    <select
-                      value={newBag.bag_type}
-                      onChange={(e) => setNewBag({ ...newBag, bag_type: e.target.value })}
-                      className="select-box"
-                    >
-                      <option value="Trolley">Large Trolley</option>
-                      <option value="Cabin">Cabin Bag</option>
-                      <option value="Backpack">Daypack</option>
-                      <option value="Stroller">Stroller</option>
-                      <option value="Handbag">Sling / Purse</option>
-                    </select>
-                    <select
-                      value={newBag.assigned_to}
-                      onChange={(e) => setNewBag({ ...newBag, assigned_to: e.target.value })}
-                      className="select-box"
-                    >
-                      <option value="">Caretaker</option>
-                      {members.map(m => <option key={m.id} value={m.name}>{m.name}</option>)}
-                    </select>
-                  </div>
                   <button type="submit" className="btn-cta">Save Bag</button>
                 </form>
               </div>
@@ -1048,7 +1198,7 @@ export default function App() {
                 />
                 <input
                   type="text"
-                  placeholder="Role (e.g. Taxi Driver, Hotel Reception)"
+                  placeholder="Role (e.g. Kashi Math Manager, Cab Driver)"
                   value={newContact.role}
                   onChange={(e) => setNewContact({ ...newContact, role: e.target.value })}
                   className="input-box"

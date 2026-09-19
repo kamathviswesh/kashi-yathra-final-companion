@@ -7,7 +7,7 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['icon.svg'],
+      includeAssets: ['icon.png'],
       manifest: {
         name: 'Kashi & Beyond • Family Yatra',
         short_name: 'Kashi Yatra',
@@ -18,8 +18,8 @@ export default defineConfig({
         orientation: 'portrait',
         icons: [
           {
-            src: '/icon.svg',
-            sizes: '192x192 512x512',
+            src: '/icon.png',
+            sizes: '512x512',
             type: 'image/svg+xml',
             purpose: 'any maskable'
           }
