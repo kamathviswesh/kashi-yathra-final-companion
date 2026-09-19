@@ -52,7 +52,7 @@ export default function App() {
   const [isEditingTipModal, setIsEditingTipModal] = useState(false);
   const [loading, setLoading] = useState(true);
 
-  // Data states with offline fallback
+  // Offline-resilient states
   const [itinerary, setItinerary] = useState(() => JSON.parse(localStorage.getItem('trip_itinerary') || '[]'));
   const [contacts, setContacts] = useState(() => JSON.parse(localStorage.getItem('trip_contacts') || '[]'));
   const [packing, setPacking] = useState(() => JSON.parse(localStorage.getItem('packing_list') || '[]'));
@@ -107,23 +107,54 @@ export default function App() {
         localStorage.setItem('trip_day_meta', JSON.stringify(tipsMap));
       }
     } catch (err) {
-      console.warn("Offline mode active", err);
+      console.warn("Working offline with cached data", err);
     } finally {
       setTimeout(() => setLoading(false), 350);
     }
   }
 
-  // --- ACTIONS ---
+  // --- OPTIMISTIC CRUD ACTIONS (INSTANT UI RESPONSE) ---
   async function addItineraryItem(e) {
     e.preventDefault();
     if (!newActivity.activity.trim()) return;
-    const { data, error } = await supabase.from('trip_itinerary').insert([newActivity]).select();
-    if (!error && data) {
-      const updated = [...itinerary, ...data];
-      setItinerary(updated);
-      localStorage.setItem('trip_itinerary', JSON.stringify(updated));
-      setNewActivity({ ...newActivity, activity: '', flight_no: '', time_info: '', map_link: '', notes: '' });
-      setIsModalOpen(false);
+
+    const optimisticItem = {
+      ...newActivity,
+      id: Date.now()
+    };
+
+    // 1. Immediately update UI & localStorage
+    const updated = [...itinerary, optimisticItem];
+    setItinerary(updated);
+    localStorage.setItem('trip_itinerary', JSON.stringify(updated));
+    setIsModalOpen(false);
+
+    // Reset Form
+    setNewActivity({ 
+      day_number: selectedDay, 
+      date: TRIP_DAYS.find(d => d.day === selectedDay)?.date || '2026-09-26', 
+      location: 'Varanasi', 
+      type: 'Activity', 
+      activity: '', 
+      flight_no: '', 
+      time_info: '', 
+      map_link: '',
+      accessibility: 'normal',
+      notes: '' 
+    });
+
+    // 2. Background sync to Supabase
+    try {
+      const { data, error } = await supabase.from('trip_itinerary').insert([newActivity]).select();
+      if (error) {
+        console.error("Supabase insert warning:", error.message);
+      } else if (data && data.length > 0) {
+        const reconciled = updated.map(item => item.id === optimisticItem.id ? data[0] : item);
+        setItinerary(reconciled);
+        localStorage.setItem('trip_itinerary', JSON.stringify(reconciled));
+      }
+    } catch (err) {
+      console.warn("Offline: cached in localStorage", err);
     }
   }
 
@@ -134,22 +165,36 @@ export default function App() {
     localStorage.setItem('trip_day_meta', JSON.stringify(updated));
     setIsEditingTipModal(false);
 
-    await supabase.from('trip_day_meta').upsert({
-      day_number: selectedDay,
-      custom_tip: tipInput
-    });
+    try {
+      await supabase.from('trip_day_meta').upsert({
+        day_number: selectedDay,
+        custom_tip: tipInput
+      });
+    } catch (err) {
+      console.warn("Offline: tip saved locally", err);
+    }
   }
 
   async function addPackingItem(e) {
     e.preventDefault();
     if (!newItem.item.trim()) return;
-    const { data, error } = await supabase.from('packing_list').insert([{ ...newItem, is_packed: false }]).select();
-    if (!error && data) {
-      const updated = [...packing, ...data];
-      setPacking(updated);
-      localStorage.setItem('packing_list', JSON.stringify(updated));
-      setNewItem({ ...newItem, item: '' });
-      setIsModalOpen(false);
+
+    const optimisticItem = { ...newItem, id: Date.now(), is_packed: false };
+    const updated = [...packing, optimisticItem];
+    setPacking(updated);
+    localStorage.setItem('packing_list', JSON.stringify(updated));
+    setIsModalOpen(false);
+    setNewItem({ ...newItem, item: '' });
+
+    try {
+      const { data, error } = await supabase.from('packing_list').insert([{ ...newItem, is_packed: false }]).select();
+      if (!error && data && data.length > 0) {
+        const reconciled = updated.map(p => p.id === optimisticItem.id ? data[0] : p);
+        setPacking(reconciled);
+        localStorage.setItem('packing_list', JSON.stringify(reconciled));
+      }
+    } catch (err) {
+      console.warn("Offline: packing item saved locally", err);
     }
   }
 
@@ -158,45 +203,80 @@ export default function App() {
     const updated = packing.map(p => p.id === id ? { ...p, is_packed: nextState } : p);
     setPacking(updated);
     localStorage.setItem('packing_list', JSON.stringify(updated));
-    await supabase.from('packing_list').update({ is_packed: nextState }).eq('id', id);
+
+    try {
+      await supabase.from('packing_list').update({ is_packed: nextState }).eq('id', id);
+    } catch (err) {
+      console.warn("Offline: toggle state saved locally", err);
+    }
   }
 
   async function addMember(e) {
     e.preventDefault();
     if (!newMember.name.trim()) return;
-    const { data, error } = await supabase.from('trip_members').insert([newMember]).select();
-    if (!error && data) {
-      const updated = [...members, ...data];
-      setMembers(updated);
-      localStorage.setItem('trip_members', JSON.stringify(updated));
-      setNewMember({ name: '', role: 'Adult' });
-      setIsModalOpen(false);
+
+    const optimistic = { ...newMember, id: Date.now() };
+    const updated = [...members, optimistic];
+    setMembers(updated);
+    localStorage.setItem('trip_members', JSON.stringify(updated));
+    setIsModalOpen(false);
+    setNewMember({ name: '', role: 'Adult' });
+
+    try {
+      const { data, error } = await supabase.from('trip_members').insert([newMember]).select();
+      if (!error && data && data.length > 0) {
+        const reconciled = updated.map(m => m.id === optimistic.id ? data[0] : m);
+        setMembers(reconciled);
+        localStorage.setItem('trip_members', JSON.stringify(reconciled));
+      }
+    } catch (err) {
+      console.warn("Offline: member saved locally", err);
     }
   }
 
   async function addBag(e) {
     e.preventDefault();
     if (!newBag.bag_name.trim()) return;
-    const { data, error } = await supabase.from('trip_bags').insert([newBag]).select();
-    if (!error && data) {
-      const updated = [...bags, ...data];
-      setBags(updated);
-      localStorage.setItem('trip_bags', JSON.stringify(updated));
-      setNewBag({ bag_name: '', bag_type: 'Trolley', assigned_to: '' });
-      setIsModalOpen(false);
+
+    const optimistic = { ...newBag, id: Date.now() };
+    const updated = [...bags, optimistic];
+    setBags(updated);
+    localStorage.setItem('trip_bags', JSON.stringify(updated));
+    setIsModalOpen(false);
+    setNewBag({ bag_name: '', bag_type: 'Trolley', assigned_to: '' });
+
+    try {
+      const { data, error } = await supabase.from('trip_bags').insert([newBag]).select();
+      if (!error && data && data.length > 0) {
+        const reconciled = updated.map(b => b.id === optimistic.id ? data[0] : b);
+        setBags(reconciled);
+        localStorage.setItem('trip_bags', JSON.stringify(reconciled));
+      }
+    } catch (err) {
+      console.warn("Offline: bag saved locally", err);
     }
   }
 
   async function addContact(e) {
     e.preventDefault();
     if (!newContact.name.trim() || !newContact.phone.trim()) return;
-    const { data, error } = await supabase.from('trip_contacts').insert([newContact]).select();
-    if (!error && data) {
-      const updated = [...contacts, ...data];
-      setContacts(updated);
-      localStorage.setItem('trip_contacts', JSON.stringify(updated));
-      setNewContact({ name: '', role: '', phone: '', notes: '' });
-      setIsModalOpen(false);
+
+    const optimistic = { ...newContact, id: Date.now() };
+    const updated = [...contacts, optimistic];
+    setContacts(updated);
+    localStorage.setItem('trip_contacts', JSON.stringify(updated));
+    setIsModalOpen(false);
+    setNewContact({ name: '', role: '', phone: '', notes: '' });
+
+    try {
+      const { data, error } = await supabase.from('trip_contacts').insert([newContact]).select();
+      if (!error && data && data.length > 0) {
+        const reconciled = updated.map(c => c.id === optimistic.id ? data[0] : c);
+        setContacts(reconciled);
+        localStorage.setItem('trip_contacts', JSON.stringify(reconciled));
+      }
+    } catch (err) {
+      console.warn("Offline: contact saved locally", err);
     }
   }
 
@@ -205,7 +285,12 @@ export default function App() {
     const updated = listState.filter(item => item.id !== id);
     setListState(updated);
     localStorage.setItem(storageKey, JSON.stringify(updated));
-    await supabase.from(table).delete().eq('id', id);
+
+    try {
+      await supabase.from(table).delete().eq('id', id);
+    } catch (err) {
+      console.warn("Offline: deletion cached locally", err);
+    }
   }
 
   // --- Dynamic calculations ---
@@ -227,7 +312,7 @@ export default function App() {
 
   const packedCount = packing.filter(p => p.is_packed).length;
   const packedPercent = packing.length ? Math.round((packedCount / packing.length) * 100) : 0;
-  const leadEmergencyContact = contacts.find(c => c.role?.toLowerCase().includes('emergency') || c.role?.toLowerCase().includes('cab')) || contacts[0];
+  const leadEmergencyContact = contacts.find(c => c.role?.toLowerCase().includes('emergency') || c.role?.toLowerCase().includes('cab') || c.role?.toLowerCase().includes('driver')) || contacts[0];
 
   function getMapUrl(item) {
     if (item.map_link && item.map_link.startsWith('http')) return item.map_link;
@@ -235,7 +320,6 @@ export default function App() {
     return `https://www.google.com/maps/search/?api=1&query=${query}`;
   }
 
-  // Live Trip Countdown Helper
   function getCountdownStatus() {
     const today = new Date();
     const tripStart = new Date('2026-09-26T00:00:00');
@@ -252,7 +336,6 @@ export default function App() {
     }
   }
 
-  // Pre-formatted WhatsApp Day Share
   function shareDayToWhatsApp() {
     const header = `🕉️ *Kashi Yatra • Day ${selectedDay} (${activeDayMeta.label})*\n📍 *Location:* ${activeDayMeta.city}\n\n`;
     const events = dayItinerary.map((it, idx) => {
@@ -322,12 +405,19 @@ export default function App() {
               ========================================================= */}
           {activeTab === 'itinerary' && (
             <div>
-              {/* Day Scroller */}
+              {/* Day Carousel */}
               <div className="day-scroller">
                 {TRIP_DAYS.map(d => (
                   <div
                     key={d.day}
-                    onClick={() => { setSelectedDay(d.day); setNewActivity(prev => ({ ...prev, day_number: d.day })); }}
+                    onClick={() => { 
+                      setSelectedDay(d.day); 
+                      setNewActivity(prev => ({ 
+                        ...prev, 
+                        day_number: d.day,
+                        date: d.date 
+                      })); 
+                    }}
                     className={`day-chip ${selectedDay === d.day ? 'active' : ''}`}
                   >
                     <div className="chip-num">Day {d.day}</div>
@@ -337,7 +427,7 @@ export default function App() {
                 ))}
               </div>
 
-              {/* Weather & River/Ghat Condition Strip */}
+              {/* Weather & River Condition Strip */}
               <div className="weather-strip">
                 <div className="weather-indicator">
                   <Waves size={14} color="#16a34a" />
@@ -373,7 +463,7 @@ export default function App() {
                 </div>
               </div>
 
-              {/* Connected Timeline Rail */}
+              {/* Connected Vertical Timeline Spine */}
               {dayItinerary.length === 0 ? (
                 <div style={{ textAlign: 'center', padding: '36px 16px', color: '#a8a29e', background: '#fff', borderRadius: '14px', border: '1px dashed #cbd5e1' }}>
                   No events scheduled for Day {selectedDay}. Tap <strong>+</strong> below to add one.
@@ -402,12 +492,10 @@ export default function App() {
 
                     return (
                       <div key={item.id} className="timeline-node-wrapper">
-                        {/* Timeline Bullet */}
                         <div className="timeline-node-bullet">
                           {isFlight ? '✈️' : isTemple ? '🛕' : '📍'}
                         </div>
 
-                        {/* Event Card */}
                         <div className={`luxury-card ${isFlight ? 'card-flight' : ''}`}>
                           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                             <div>
@@ -416,7 +504,6 @@ export default function App() {
                                   {isFlight ? '✈️ ' + item.location : item.location}
                                 </span>
 
-                                {/* Stroller / Elderly Accessibility Tag */}
                                 {item.accessibility === 'stroller_yes' && (
                                   <span className="tag-access tag-stroller-yes">✓ Stroller Friendly</span>
                                 )}
@@ -443,7 +530,6 @@ export default function App() {
 
                           {item.notes && <div className="card-notes-text">{item.notes}</div>}
 
-                          {/* Pre-Darshan Security Warning for Strict Temples */}
                           {isHighSecurityTemple && (
                             <div className="tag-darshan-warning">
                               <AlertTriangle size={14} style={{ flexShrink: 0, marginTop: '2px' }} />
@@ -471,7 +557,7 @@ export default function App() {
           )}
 
           {/* =========================================================
-              2. CHECKLIST TAB WITH CIRCULAR PROGRESS RING
+              2. CHECKLIST TAB
               ========================================================= */}
           {activeTab === 'packing' && (
             <div>
@@ -665,7 +751,18 @@ export default function App() {
       )}
 
       {!loading && (
-        <button onClick={() => setIsModalOpen(true)} className="fab-btn-luxury" aria-label="Add Item">
+        <button 
+          onClick={() => {
+            setNewActivity(prev => ({
+              ...prev,
+              day_number: selectedDay,
+              date: TRIP_DAYS.find(d => d.day === selectedDay)?.date || '2026-09-26'
+            }));
+            setIsModalOpen(true);
+          }} 
+          className="fab-btn-luxury" 
+          aria-label="Add Item"
+        >
           <Plus size={26} />
         </button>
       )}
