@@ -21,7 +21,8 @@ import {
   Share2,
   AlertTriangle,
   Waves,
-  ShieldCheck
+  ShieldCheck,
+  Car
 } from 'lucide-react';
 import './index.css';
 
@@ -33,10 +34,10 @@ const CITY_HERO_IMAGES = {
 };
 
 const TRIP_DAYS = [
-  { day: 1, date: '2026-09-26', label: 'Sep 26', city: 'Transit / Varanasi', hero: CITY_HERO_IMAGES.Transit, riverStatus: 'Ghats Normal • Airport Transit' },
-  { day: 2, date: '2026-09-27', label: 'Sep 27', city: 'Varanasi', hero: CITY_HERO_IMAGES.Varanasi, riverStatus: 'Ganga Boating: Clear • Aarti Crowds Heavy' },
+  { day: 1, date: '2026-09-26', label: 'Sep 26', city: 'Transit / Prayagraj', hero: CITY_HERO_IMAGES.Transit, riverStatus: 'Airport Arrival • Highway Transfer to Prayagraj' },
+  { day: 2, date: '2026-09-27', label: 'Sep 27', city: 'Prayagraj / Varanasi', hero: CITY_HERO_IMAGES.Prayagraj, riverStatus: 'Sangam Confluence Boats: Running • Darshan' },
   { day: 3, date: '2026-09-28', label: 'Sep 28', city: 'Varanasi', hero: CITY_HERO_IMAGES.Varanasi, riverStatus: 'Sunrise Cruise Active • Moderate Current' },
-  { day: 4, date: '2026-09-29', label: 'Sep 29', city: 'Prayagraj', hero: CITY_HERO_IMAGES.Prayagraj, riverStatus: 'Sangam Confluence Boats: Running' },
+  { day: 4, date: '2026-09-29', label: 'Sep 29', city: 'Varanasi', hero: CITY_HERO_IMAGES.Varanasi, riverStatus: 'Ganga Boating: Clear • Aarti Crowds Heavy' },
   { day: 5, date: '2026-09-30', label: 'Sep 30', city: 'Ayodhya', hero: CITY_HERO_IMAGES.Ayodhya, riverStatus: 'Saryu River Aarti: Normal Water Level' },
   { day: 6, date: '2026-10-01', label: 'Oct 1',  city: 'Ayodhya', hero: CITY_HERO_IMAGES.Ayodhya, riverStatus: 'Ram Mandir Darshan: Standard Queues' },
   { day: 7, date: '2026-10-02', label: 'Oct 2',  city: 'Varanasi', hero: CITY_HERO_IMAGES.Varanasi, riverStatus: 'Silk Weaver Walks • Ghat Evening Walk' },
@@ -65,8 +66,8 @@ export default function App() {
   const [newActivity, setNewActivity] = useState({ 
     day_number: 1, 
     date: '2026-09-26', 
-    location: 'Varanasi', 
-    type: 'Activity', 
+    location: 'Transit (VNS → Prayagraj)', 
+    type: 'Drive', 
     activity: '', 
     flight_no: '', 
     time_info: '', 
@@ -113,7 +114,7 @@ export default function App() {
     }
   }
 
-  // --- OPTIMISTIC CRUD ACTIONS (INSTANT UI RESPONSE) ---
+  // --- OPTIMISTIC CRUD ACTIONS ---
   async function addItineraryItem(e) {
     e.preventDefault();
     if (!newActivity.activity.trim()) return;
@@ -123,13 +124,11 @@ export default function App() {
       id: Date.now()
     };
 
-    // 1. Immediately update UI & localStorage
     const updated = [...itinerary, optimisticItem];
     setItinerary(updated);
     localStorage.setItem('trip_itinerary', JSON.stringify(updated));
     setIsModalOpen(false);
 
-    // Reset Form
     setNewActivity({ 
       day_number: selectedDay, 
       date: TRIP_DAYS.find(d => d.day === selectedDay)?.date || '2026-09-26', 
@@ -143,11 +142,10 @@ export default function App() {
       notes: '' 
     });
 
-    // 2. Background sync to Supabase
     try {
       const { data, error } = await supabase.from('trip_itinerary').insert([newActivity]).select();
       if (error) {
-        console.error("Supabase insert warning:", error.message);
+        console.error("Supabase insert issue:", error.message);
       } else if (data && data.length > 0) {
         const reconciled = updated.map(item => item.id === optimisticItem.id ? data[0] : item);
         setItinerary(reconciled);
@@ -207,7 +205,7 @@ export default function App() {
     try {
       await supabase.from('packing_list').update({ is_packed: nextState }).eq('id', id);
     } catch (err) {
-      console.warn("Offline: toggle state saved locally", err);
+      console.warn("Offline: toggle saved locally", err);
     }
   }
 
@@ -289,7 +287,7 @@ export default function App() {
     try {
       await supabase.from(table).delete().eq('id', id);
     } catch (err) {
-      console.warn("Offline: deletion cached locally", err);
+      console.warn("Offline: deletion saved locally", err);
     }
   }
 
@@ -341,7 +339,7 @@ export default function App() {
     const events = dayItinerary.map((it, idx) => {
       let line = `${idx + 1}. *${it.activity}*`;
       if (it.time_info) line += ` (🕒 ${it.time_info})`;
-      if (it.flight_no) line += ` [Flight: ${it.flight_no}]`;
+      if (it.flight_no) line += ` [${it.type === 'Drive' ? 'Cab' : 'Flight'}: ${it.flight_no}]`;
       if (it.notes) line += `\n   ↳ _Note: ${it.notes}_`;
       return line;
     }).join('\n\n');
@@ -395,7 +393,7 @@ export default function App() {
           <div className="kashi-subtitle">Kashi Vishwanath Mandir</div>
           <div className="kashi-loader-pill">
             <span className="kashi-flame-dot"></span>
-            <span>Syncing Itinerary, River Levels & GPS...</span>
+            <span>Syncing Itinerary, Routes & GPS...</span>
           </div>
         </div>
       ) : (
@@ -427,7 +425,7 @@ export default function App() {
                 ))}
               </div>
 
-              {/* Weather & River Condition Strip */}
+              {/* Weather & River/Highway Condition Strip */}
               <div className="weather-strip">
                 <div className="weather-indicator">
                   <Waves size={14} color="#16a34a" />
@@ -472,7 +470,8 @@ export default function App() {
                 <div className="timeline-container">
                   <div className="timeline-spine"></div>
                   {dayItinerary.map(item => {
-                    const isFlight = item.type === 'Flight' || item.location?.includes('Transit');
+                    const isFlight = item.type === 'Flight' || item.location?.includes('COK →') || item.location?.includes('→ COK');
+                    const isDrive = item.type === 'Drive' || item.location?.includes('Transit') || item.location?.includes('→');
                     const isTemple = item.activity?.toLowerCase().includes('mandir') || 
                                      item.activity?.toLowerCase().includes('aarti') || 
                                      item.activity?.toLowerCase().includes('darshan') ||
@@ -482,7 +481,11 @@ export default function App() {
                                                  item.activity?.toLowerCase().includes('janmabhoomi') ||
                                                  item.activity?.toLowerCase().includes('hanuman garhi');
 
-                    const cityClass = item.location === 'Varanasi' 
+                    const cityClass = isFlight 
+                      ? 'city-transit'
+                      : isDrive 
+                      ? 'city-prayagraj'
+                      : item.location === 'Varanasi' 
                       ? 'city-varanasi' 
                       : item.location === 'Prayagraj' 
                       ? 'city-prayagraj' 
@@ -492,16 +495,18 @@ export default function App() {
 
                     return (
                       <div key={item.id} className="timeline-node-wrapper">
+                        {/* Dynamic Timeline Node Icon */}
                         <div className="timeline-node-bullet">
-                          {isFlight ? '✈️' : isTemple ? '🛕' : '📍'}
+                          {isFlight ? '✈️' : isDrive ? '🚗' : isTemple ? '🛕' : '📍'}
                         </div>
 
-                        <div className={`luxury-card ${isFlight ? 'card-flight' : ''}`}>
+                        {/* Event Card */}
+                        <div className={`luxury-card ${isFlight ? 'card-flight' : isDrive ? 'card-drive' : ''}`}>
                           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                             <div>
                               <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px', flexWrap: 'wrap' }}>
                                 <span className={`city-pill ${cityClass}`}>
-                                  {isFlight ? '✈️ ' + item.location : item.location}
+                                  {isFlight ? '✈️ ' + item.location : isDrive ? '🚗 ' + item.location : item.location}
                                 </span>
 
                                 {item.accessibility === 'stroller_yes' && (
@@ -523,7 +528,11 @@ export default function App() {
 
                           {(item.flight_no || item.time_info) && (
                             <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginTop: '6px' }}>
-                              {item.flight_no && <span className="flight-meta-tag">✈️ Flight: {item.flight_no}</span>}
+                              {item.flight_no && (
+                                <span className="flight-meta-tag">
+                                  {isDrive ? '🚗 ' : '✈️ '}{item.flight_no}
+                                </span>
+                              )}
                               {item.time_info && <span className="flight-meta-tag">🕒 {item.time_info}</span>}
                             </div>
                           )}
@@ -805,7 +814,7 @@ export default function App() {
               <textarea
                 value={tipInput}
                 onChange={(e) => setTipInput(e.target.value)}
-                placeholder="e.g., Sunrise Ganga aarti at Dashashwamedh; stroller check-in before evening temple."
+                placeholder="e.g., Direct drive to Prayagraj; check-in at Kashi Math and rest."
                 rows={4}
                 className="input-box"
                 style={{ resize: 'vertical' }}
@@ -843,34 +852,38 @@ export default function App() {
                     onChange={(e) => setNewActivity({ ...newActivity, type: e.target.value })}
                     className="select-box"
                   >
-                    <option value="Activity">Sightseeing</option>
-                    <option value="Flight">Flight</option>
+                    <option value="Activity">Sightseeing / Darshan</option>
+                    <option value="Drive">🚗 Road Transit / Cab</option>
+                    <option value="Flight">✈️ Flight</option>
                   </select>
                   <select
                     value={newActivity.location}
                     onChange={(e) => setNewActivity({ ...newActivity, location: e.target.value })}
                     className="select-box"
                   >
-                    <option value="Varanasi">Varanasi</option>
+                    <option value="Transit (VNS → Prayagraj)">VNS Airport → Prayagraj</option>
                     <option value="Prayagraj">Prayagraj</option>
+                    <option value="Transit (Prayagraj → Ayodhya)">Prayagraj → Ayodhya</option>
                     <option value="Ayodhya">Ayodhya</option>
+                    <option value="Transit (Ayodhya → Varanasi)">Ayodhya → Varanasi</option>
+                    <option value="Varanasi">Varanasi</option>
                     <option value="Transit (COK → VNS)">COK → VNS (Flight)</option>
                     <option value="Transit (VNS → COK)">VNS → COK (Flight)</option>
                   </select>
                 </div>
 
-                {newActivity.type === 'Flight' && (
+                {(newActivity.type === 'Flight' || newActivity.type === 'Drive') && (
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', marginBottom: '8px' }}>
                     <input
                       type="text"
-                      placeholder="Flight No (e.g. 6E 543)"
+                      placeholder={newActivity.type === 'Drive' ? "Vehicle (e.g. Innova / Traveller)" : "Flight No (e.g. 6E 543)"}
                       value={newActivity.flight_no}
                       onChange={(e) => setNewActivity({ ...newActivity, flight_no: e.target.value })}
                       className="input-box"
                     />
                     <input
                       type="text"
-                      placeholder="Time (e.g. 06:15 - 12:30)"
+                      placeholder={newActivity.type === 'Drive' ? "Duration (e.g. 1:30 PM - 4:30 PM)" : "Time (e.g. 06:15 - 12:30)"}
                       value={newActivity.time_info}
                       onChange={(e) => setNewActivity({ ...newActivity, time_info: e.target.value })}
                       className="input-box"
@@ -880,7 +893,7 @@ export default function App() {
 
                 <input
                   type="text"
-                  placeholder={newActivity.type === 'Flight' ? "Flight Description" : "Activity or Temple Name (e.g. Sankat Mochan)"}
+                  placeholder={newActivity.type === 'Drive' ? "Destination (e.g. Drive to Prayagraj & Stay at Kashi Math)" : newActivity.type === 'Flight' ? "Flight Route" : "Activity or Temple (e.g. Sankat Mochan)"}
                   value={newActivity.activity}
                   onChange={(e) => setNewActivity({ ...newActivity, activity: e.target.value })}
                   className="input-box"
@@ -900,7 +913,7 @@ export default function App() {
                     </select>
                     <input
                       type="text"
-                      placeholder="Maps link (optional)"
+                      placeholder="Google Maps link (optional)"
                       value={newActivity.map_link}
                       onChange={(e) => setNewActivity({ ...newActivity, map_link: e.target.value })}
                       className="input-box"
@@ -910,7 +923,7 @@ export default function App() {
 
                 <input
                   type="text"
-                  placeholder="Notes (PNR, entry rules, baby stroller tips)"
+                  placeholder="Notes (e.g. Driver contact, Room booked, Toll/Highway notes)"
                   value={newActivity.notes}
                   onChange={(e) => setNewActivity({ ...newActivity, notes: e.target.value })}
                   className="input-box"
@@ -1035,7 +1048,7 @@ export default function App() {
                 />
                 <input
                   type="text"
-                  placeholder="Role (e.g. Taxi, Hotel Reception)"
+                  placeholder="Role (e.g. Taxi Driver, Hotel Reception)"
                   value={newContact.role}
                   onChange={(e) => setNewContact({ ...newContact, role: e.target.value })}
                   className="input-box"
